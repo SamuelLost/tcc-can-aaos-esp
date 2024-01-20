@@ -1,0 +1,6 @@
+on boot
+    insmod /vendor/lib/modules/spi-bcm2835.ko
+    insmod /vendor/lib/modules/can.ko
+    insmod /vendor/lib/modules/can-raw.ko
+    insmod /vendor/lib/modules/can-dev.ko
+    insmod /vendor/lib/modules/mcp251x.ko
