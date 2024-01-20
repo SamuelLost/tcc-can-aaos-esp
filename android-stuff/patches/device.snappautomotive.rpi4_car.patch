@@ -1,0 +1,78 @@
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index dbac3ef..79ebd19 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -69,6 +69,8 @@ BOARD_HAVE_BLUETOOTH_BCM := true
+ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/snappautomotive/rpi4_car/bluetooth
+ BOARD_CUSTOM_BT_CONFIG := device/snappautomotive/rpi4_car/bluetooth/vnd_rpi4.txt
+ 
++BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
++
+ BOARD_SEPOLICY_DIRS := \
+     device/snappautomotive/rpi4_car/sepolicy
+ 
+diff --git a/init.rpi4.rc b/init.rpi4.rc
+index f9d0cb0..ff29493 100644
+--- a/init.rpi4.rc
++++ b/init.rpi4.rc
+@@ -1,4 +1,5 @@
+ #import /vendor/etc/init/hw/init.rpi4.usb.rc
++import /vendor/etc/init/hw/init.can.rc
+ 
+ on init
+     # mount debugfs
+diff --git a/manifest.xml b/manifest.xml
+index 7ef2834..73b2442 100644
+--- a/manifest.xml
++++ b/manifest.xml
+@@ -121,4 +121,14 @@
+             <instance>external/0</instance>
+         </interface>
+     </hal>    
++    <hal format="aidl">
++        <name>android.hardware.automotive.vehicle</name>
++        <version>1</version>
++        <fqname>IVehicle/default</fqname>
++    </hal>
++    <hal format="hidl">
++        <name>android.hardware.automotive.can</name>
++        <transport>hwbinder</transport>
++        <fqname>@1.0::ICanController/socketcan</fqname>
++    </hal>
+ </manifest>
+diff --git a/rpi4_car.mk b/rpi4_car.mk
+index 08bf3f3..ff849e1 100644
+--- a/rpi4_car.mk
++++ b/rpi4_car.mk
+@@ -19,6 +19,7 @@ DEVICE_IS_64BIT_ONLY := true
+ $(call inherit-product, device/snappautomotive/common/additions.mk)
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+ $(call inherit-product, packages/services/Car/car_product/build/car.mk)
++$(call inherit-product, device/snappautomotive/rpi4_car/can/can.mk)
+ 
+ PRODUCT_NAME := rpi4_car
+ PRODUCT_DEVICE := rpi4_car
+@@ -98,10 +99,11 @@ PRODUCT_PACKAGES += \
+     android.hardware.tv.cec@1.0-service.mock \
+     vndservicemanager
+ 
+-# Auto modules
++# Auto modules - VHAL service and CAN service
+ PRODUCT_PACKAGES += \
+             android.hardware.broadcastradio@2.0-service \
+-            android.hardware.automotive.vehicle@2.0-default-service \
++            android.hardware.automotive.vehicle@V1-default-service \
++            android.hardware.automotive.can@1.0-service \
+             CarServiceUpdatableNonModule
+ 
+ # Car init.rc
+@@ -190,6 +192,9 @@ PRODUCT_COPY_FILES += \
+ 
+ PRODUCT_CHARACTERISTICS := automotive
+ 
++PRODUCT_COPY_FILES += \
++	$(LOCAL_PATH)/can/init.can.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.can.rc
++
+ # These are things from atv_base, which android-rpi is based on, 
+ # that aren't in automotive builds.
+ 

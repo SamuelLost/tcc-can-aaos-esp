@@ -1,0 +1,29 @@
+cc_binary {
+    name: "can-vhal-tcc",
+    srcs: ["can-vhal-tcc.cpp"],
+    shared_libs: [
+        "android.hardware.automotive.can@1.0",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+        "libbase",
+        "libbinder",
+	    "libbinder_ndk",
+    ],
+    static_libs: [
+        "android.hardware.automotive.can@libnetdevice",
+        "android.hardware.automotive@libc++fs",
+        "libnl++",
+        "android.hardware.automotive.vehicle-V1-ndk",
+	    "libvhalclient",
+    ],
+    defaults: [
+	    "vhalclient_defaults", // <AidlVhalClient.h>
+    ],
+    vendor: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}

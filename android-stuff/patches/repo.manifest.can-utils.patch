@@ -1,0 +1,12 @@
+diff --git a/default.xml b/default.xml
+index 8e74e34b9..98ad5dfb8 100644
+--- a/default.xml
++++ b/default.xml
+@@ -1188,4 +1188,7 @@
+   <project path="tools/treble" name="platform/tools/treble" groups="tools,pdk" />
+   <project path="tools/trebuchet" name="platform/tools/trebuchet" groups="tools,cts,pdk,pdk-cw-fs,pdk-fs" />
+   <!-- END open-source projects -->
++  
++  <remote fetch="https://github.com/linux-can/" name="github"/>
++  <project name="can-utils" path="external/can-utils" remote="github" revision="master"/>
+ </manifest>
