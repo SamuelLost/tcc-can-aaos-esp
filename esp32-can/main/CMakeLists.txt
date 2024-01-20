@@ -1,0 +1,13 @@
+set(APP_VERSION 1)
+
+if(APP_VERSION EQUAL 1) 
+    idf_component_register(SRCS "main_send.cpp" INCLUDE_DIRS ".")
+elseif(APP_VERSION EQUAL 2)
+    idf_component_register(SRCS "main_receive.cpp" INCLUDE_DIRS ".")
+elseif(APP_VERSION EQUAL 3)
+    idf_component_register(SRCS "main_send_loopback_expA.cpp" INCLUDE_DIRS ".")
+elseif(APP_VERSION EQUAL 4)
+    idf_component_register(SRCS "main_dht22.cpp" INCLUDE_DIRS ".")
+else()
+    message(FATAL_ERROR "Invalid APP_VERSION: ${APP_VERSION}")
+endif()
