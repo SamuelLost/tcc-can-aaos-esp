@@ -22,9 +22,12 @@
 #include <android/hardware/automotive/can/1.0/types.h>
 
 #include <aidl/android/hardware/automotive/vehicle/BnVehicle.h>
+// #include <aidl/android/hardware/automotive/can/BnCanBus.h>
 #include <AidlVhalClient.h>
 
 constexpr static char AIDL_VHAL_SERVICE[] = "android.hardware.automotive.vehicle.IVehicle/default";
+constexpr static char AIDL_CAN_SERVICE[] = "android.hardware.automotive.can.ICanBus/default";
+constexpr static char AIDL_CAN_CONTROLLER[] = "android.hardware.automotive.can.ICanController/default";
 constexpr static char TAG[] = "VHAL_SOCKET";
 
 using ::android::frameworks::automotive::vhal::IVhalClient;
@@ -54,6 +57,7 @@ int main() {
     // Aqui eu consegui fazer sozinho com base no da eldorado
     CanMessage message;
     sp<ICanBus> can_bus = ICanBus::getService();
+    
     sp<ICanController> can_controller = ICanController::getService();
     if (can_bus == nullptr || can_controller == nullptr) {
         ALOG(LOG_ERROR, TAG, "Failed to get CAN service");
