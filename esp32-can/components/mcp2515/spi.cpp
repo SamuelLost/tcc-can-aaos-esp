@@ -52,11 +52,20 @@ esp_err_t SPI::Bus::begin(int miso, int mosi, int sclk, int cs, int host) {
     cs_ = cs;
   }
 
-  bus_cfg_.mosi_io_num = mosi_;
-  bus_cfg_.miso_io_num = miso_;
-  bus_cfg_.sclk_io_num = sclk_;
-  bus_cfg_.quadwp_io_num = -1;
-  bus_cfg_.quadhd_io_num = -1;
+  memset(&bus_cfg_, 0, sizeof(spi_bus_config_t));
+  memset(&dev_cfg_, 0, sizeof(spi_device_interface_config_t));
+
+  // bus_cfg_.mosi_io_num = mosi_;
+  // bus_cfg_.miso_io_num = miso_;
+  // bus_cfg_.sclk_io_num = sclk_;
+  // bus_cfg_.quadwp_io_num = -1;
+  // bus_cfg_.quadhd_io_num = -1;
+  bus_cfg_ = {.mosi_io_num = mosi_,
+              .miso_io_num = miso_,
+              .sclk_io_num = sclk_,
+              .quadwp_io_num = -1,
+              .quadhd_io_num = -1,
+            };
 
   dev_cfg_ = {.command_bits = 8,
               .address_bits = 8,
