@@ -1,21 +1,23 @@
 diff --git a/automotive/vehicle/aidl/aidl_api/android.hardware.automotive.vehicle/current/android/hardware/automotive/vehicle/VehicleProperty.aidl b/automotive/vehicle/aidl/aidl_api/android.hardware.automotive.vehicle/current/android/hardware/automotive/vehicle/VehicleProperty.aidl
-index 04f8fa3b8..96f8084d1 100644
+index 04f8fa3b8..2cd7d6a9b 100644
 --- a/automotive/vehicle/aidl/aidl_api/android.hardware.automotive.vehicle/current/android/hardware/automotive/vehicle/VehicleProperty.aidl
 +++ b/automotive/vehicle/aidl/aidl_api/android.hardware.automotive.vehicle/current/android/hardware/automotive/vehicle/VehicleProperty.aidl
-@@ -40,6 +40,8 @@ enum VehicleProperty {
+@@ -40,6 +40,10 @@ enum VehicleProperty {
    INFO_MODEL = 286261506,
    INFO_MODEL_YEAR = 289407235,
    INFO_FUEL_CAPACITY = 291504388,
 +  INFO_TEMPERATURE_DHT22 = 291508224,
 +  FAULT_CODE_TEMPERATURE_DHT22 = 286265345,
++  INFO_ACCELEROMETER_MPU6050 = 289476610,
++  FAULT_CODE_ACCELEROMETER_MPU6050 = 286265347,
    INFO_FUEL_TYPE = 289472773,
    INFO_EV_BATTERY_CAPACITY = 291504390,
    INFO_EV_CONNECTOR_TYPE = 289472775,
 diff --git a/automotive/vehicle/aidl/android/hardware/automotive/vehicle/VehicleProperty.aidl b/automotive/vehicle/aidl/android/hardware/automotive/vehicle/VehicleProperty.aidl
-index 727b949a3..d565f4cd4 100644
+index 727b949a3..7e22cba20 100644
 --- a/automotive/vehicle/aidl/android/hardware/automotive/vehicle/VehicleProperty.aidl
 +++ b/automotive/vehicle/aidl/android/hardware/automotive/vehicle/VehicleProperty.aidl
-@@ -85,6 +85,23 @@ enum VehicleProperty {
+@@ -85,6 +85,40 @@ enum VehicleProperty {
       */
      INFO_FUEL_CAPACITY = 0x0104 + 0x10000000 + 0x01000000
              + 0x00600000, // VehiclePropertyGroup:SYSTEM,VehicleArea:GLOBAL,VehiclePropertyType:FLOAT
@@ -35,18 +37,36 @@ index 727b949a3..d565f4cd4 100644
 +     * @access VehiclePropertyAccess:READ_WRITE
 +     */
 +    FAULT_CODE_TEMPERATURE_DHT22 = 0x1001 + 0x10000000 + 0x01000000
-+            + 0x00100000, // VehiclePropertyGroup:SYSTEM,VehicleArea:GLOBAL,VehiclePropertyType:STRING 
++            + 0x00100000, // VehiclePropertyGroup:SYSTEM,VehicleArea:GLOBAL,VehiclePropertyType:STRING
++    /**
++     * Accelerometer property
++     *
++     * @change_mode VehiclePropertyChangeMode:CONTINUOUS
++     * @access VehiclePropertyAccess:READ_WRITE
++     * @unit VehicleUnit:METER_PER_SEC2
++     */
++    INFO_ACCELEROMETER_MPU6050 = 0x1002 + 0x10000000 + 0x01000000
++            + 0x00410000, // VehiclePropertyGroup:SYSTEM,VehicleArea:GLOBAL,VehiclePropertyType:INT32_VEC
++    /**
++     * Fault code Accelerometer property
++     *
++     * @change_mode VehiclePropertyChangeMode:CONTINUOUS
++     * @access VehiclePropertyAccess:READ_WRITE
++     */
++    FAULT_CODE_ACCELEROMETER_MPU6050 = 0x1003 + 0x10000000 + 0x01000000
++            + 0x00100000, // VehiclePropertyGroup:SYSTEM,VehicleArea:GLOBAL,VehiclePropertyType:STRING
      /**
       * List of fuels the vehicle may use
       *
 diff --git a/automotive/vehicle/aidl/impl/default_config/include/DefaultConfig.h b/automotive/vehicle/aidl/impl/default_config/include/DefaultConfig.h
-index f023fd206..c80d6333c 100644
+index f023fd206..9cee6f4f6 100644
 --- a/automotive/vehicle/aidl/impl/default_config/include/DefaultConfig.h
 +++ b/automotive/vehicle/aidl/impl/default_config/include/DefaultConfig.h
-@@ -75,6 +75,26 @@ const std::vector<ConfigDeclaration> kVehicleProperties = {
+@@ -75,6 +75,48 @@ const std::vector<ConfigDeclaration> kVehicleProperties = {
                   },
           .initialValue = {.floatValues = {15000.0f}}},
  
++        // Temperature sensor
 +        {.config =
 +                 {
 +                        .prop = 291508224,
@@ -57,6 +77,7 @@ index f023fd206..c80d6333c 100644
 +                 },
 +         .initialValue = {.floatValues = {0.0f}}},
 +
++        // Fault code for temperature sensor
 +        {.config =
 +                 {
 +                        .prop = 286265345,
@@ -67,10 +88,30 @@ index f023fd206..c80d6333c 100644
 +                 },
 +         .initialValue = {.stringValue = "TEMP-0"}},
 +
++        {.config =
++                 {
++                        .prop = 289476610,
++                        .access = VehiclePropertyAccess::READ_WRITE,
++                        .changeMode = VehiclePropertyChangeMode::CONTINUOUS,
++                        .minSampleRate = 1.0f,
++                        .maxSampleRate = 10.0f,
++                 },
++         .initialValue = {.int32Values = {0, 0, 0}}},
++
++        {.config =
++                 {
++                        .prop = 286265347,
++                        .access = VehiclePropertyAccess::READ_WRITE,
++                        .changeMode = VehiclePropertyChangeMode::CONTINUOUS,
++                        .minSampleRate = 1.0f,
++                        .maxSampleRate = 10.0f,
++                 },
++         .initialValue = {.stringValue = "ACC-0"}},
++
          {.config =
                   {
                           .prop = toInt(VehicleProperty::INFO_FUEL_TYPE),
-@@ -1237,7 +1257,6 @@ const std::vector<ConfigDeclaration> kVehicleProperties = {
+@@ -1237,7 +1279,6 @@ const std::vector<ConfigDeclaration> kVehicleProperties = {
          {.config = {.prop = toInt(VehicleProperty::HVAC_TEMPERATURE_SET),
                      .access = VehiclePropertyAccess::READ_WRITE,
                      .changeMode = VehiclePropertyChangeMode::ON_CHANGE,
@@ -78,7 +119,7 @@ index f023fd206..c80d6333c 100644
                      .areaConfigs = {VehicleAreaConfig{
                                              .areaId = HVAC_LEFT,
                                              .minFloatValue = 16,
-@@ -1247,7 +1266,8 @@ const std::vector<ConfigDeclaration> kVehicleProperties = {
+@@ -1247,7 +1288,8 @@ const std::vector<ConfigDeclaration> kVehicleProperties = {
                                              .areaId = HVAC_RIGHT,
                                              .minFloatValue = 16,
                                              .maxFloatValue = 32,
