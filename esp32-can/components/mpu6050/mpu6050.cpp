@@ -99,9 +99,33 @@ void MPU6050::Device::reset() {
 }
 
 void MPU6050::Device::readAcceleration() {
+  
+  if (!isConnected()) {
+    ESP_LOGE("MPU6050", "Device not connected");
+    is_initialized_ = false;
+    acceleration_ = {0, 0, 0};
+    return;
+  }
+
+  if (!is_initialized_) {
+    if (!init()) {
+      ESP_LOGE("MPU6050", "Failed to initialize device");
+      is_initialized_ = false;
+      acceleration_ = {0, 0, 0};
+      return;
+    }
+    ESP_LOGI("MPU6050", "Device initialized");
+    is_initialized_ = true;
+  }
+
   uint8_t data[6];
-  readBlock(MPU6050::Register::XOUTH, data, 6);
-  acceleration_.x = (data[0] << 8) | data[1];
-  acceleration_.y = (data[2] << 8) | data[3];
-  acceleration_.z = (data[4] << 8) | data[5];
+  esp_err_t status = readBlock(MPU6050::Register::XOUTH, data, 6);
+  if (status == ESP_OK) {
+    acceleration_.x = (data[0] << 8) | data[1];
+    acceleration_.y = (data[2] << 8) | data[3];
+    acceleration_.z = (data[4] << 8) | data[5];
+  } else {
+    ESP_LOGE("MPU6050", "Failed to read acceleration");
+  }
 }
+
