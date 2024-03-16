@@ -47,7 +47,7 @@ extern "C" void app_main(void) {
   xTaskCreate(vTaskAccel, "TaskAccel", 2048, nullptr, 1, nullptr);
   xTaskCreate(vTaskCanSend, "TaskCanSend", 2048, nullptr, 1, nullptr);
   // xTaskCreate(vTaskCanReceive, "TaskCanReceive", 2048, nullptr, 1, nullptr);
-  xTaskCreate(vTaskTemperature, "TaskTemperature", 2048, nullptr, 1, nullptr);
+  // xTaskCreate(vTaskTemperature, "TaskTemperature", 2048, nullptr, 1, nullptr);
 }
 
 void vTaskAccel(void* pvParameters) {
@@ -55,6 +55,7 @@ void vTaskAccel(void* pvParameters) {
   while (1) {
     MPU6050::AxisAccel const& axis = device.getAcceleration();
     xQueueSend(accQueue, &axis, portMAX_DELAY);
+    // std::cout << "X = " << axis.x << " | Y = " << axis.y << " | Z = " << axis.z << std::endl;
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }

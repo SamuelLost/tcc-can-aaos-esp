@@ -254,6 +254,7 @@ class Device : protected I2C::Bus {
   AxisAccel acceleration_; //!< Acceleration data
   uint32_t acc_scale_ = 0; //!< Acceleration scale
   double gyro_scale_ = 0; //!< Gyroscope scale
+  bool is_initialized_ = false; //!< Flag to check if the MPU6050 is initialized
 };
 }  // namespace MPU6050
 
