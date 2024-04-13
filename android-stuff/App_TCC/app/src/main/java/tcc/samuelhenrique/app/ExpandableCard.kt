@@ -1,6 +1,7 @@
 package tcc.samuelhenrique.app
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +35,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tcc.samuelhenrique.app.ui.theme.Erro_Vermelho
@@ -46,6 +49,10 @@ fun ExpandableCard(
     currentReading: @Composable () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val cadHeight by animateDpAsState(
+        targetValue = if (expanded) Dp.Unspecified else 48.dp,
+        label = ""
+    )
     val rotateState by animateFloatAsState(targetValue = if (expanded) 180f else 0f, label = "")
 
     Card(
@@ -65,7 +72,7 @@ fun ExpandableCard(
                 indication = null
             ) { expanded = !expanded } // Remove o efeito de click do card
             .width(450.dp)
-            .height(if (expanded) 288.dp else 48.dp)
+            .heightIn(min = 48.dp, max = cadHeight)
 
     ) {
         Column(
@@ -132,7 +139,9 @@ fun Description(content: String) {
 
 @Composable
 fun Gravity(content: String) {
-    Row {
+    Row(
+        modifier = Modifier.padding(bottom = 25.dp)
+    ) {
         Box(
             modifier = Modifier
                 .align(Alignment.CenterVertically)
