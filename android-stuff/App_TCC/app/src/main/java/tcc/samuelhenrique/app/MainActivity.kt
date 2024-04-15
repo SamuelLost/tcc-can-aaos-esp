@@ -5,15 +5,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -37,7 +40,7 @@ import tcc.samuelhenrique.app.ui.theme.Texto
 
 var temperature = 100.1F
 var axis = intArrayOf(-996, 15000, 10046)
-var errors = false
+var no_errors = false
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,22 +61,29 @@ fun App() {
             .background(Background_App)
             .padding(27.dp)
     ) {
-        Row {
+        Row (
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ){
             Column(
-                modifier = Modifier.width(350.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-//                            verticalArrangement = Arrangement.Top
-
+                modifier = Modifier.wrapContentSize(),
+                //height = 400.dp width = 400.dp
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.carro),
                     contentDescription = "",
                     modifier = Modifier.size(
-                        width = 350.dp,
+                        width = 400.dp,
                         height = 200.dp)
                 )
-                Spacer(modifier = Modifier.padding(30.dp))
-                CardTemperature(temperature)
+                Column (
+                    verticalArrangement = Arrangement.Bottom,
+                    modifier = Modifier.
+                        fillMaxHeight()
+                ) {
+                    CardTemperature(temperature)
+                }
             }
             Spacer(modifier = Modifier.padding(10.dp))
             Card(
@@ -92,7 +102,7 @@ fun App() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp),
-                    horizontalAlignment = if (errors) Alignment.CenterHorizontally else Alignment.Start
+                    horizontalAlignment = if (no_errors) Alignment.CenterHorizontally else Alignment.Start
                 ) {
                     Text(
                         text = "Estado do veículo",
@@ -117,7 +127,7 @@ fun App() {
                             Font(R.font.poppins_regular)
                         )
                     )
-                    if (!errors) {
+                    if (!no_errors) {
                         CardTemperatureError(temperature)
                         Spacer(modifier = Modifier.padding(6.dp))
                         CardAccelerometerError(axis)
@@ -131,7 +141,7 @@ fun App() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 1024, heightDp = 600)
+@Preview(showBackground = true, widthDp = 1024, heightDp = 450)
 @Composable
 fun Preview() {
     App_TCCTheme {
