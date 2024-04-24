@@ -1,6 +1,10 @@
 package tcc.samuelhenrique.app
 
+import android.car.Car
+import android.car.hardware.CarPropertyValue
+import android.car.hardware.property.CarPropertyManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -24,6 +28,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,12 +46,60 @@ import tcc.samuelhenrique.app.ui.theme.Background_Card
 import tcc.samuelhenrique.app.ui.theme.Subtitulos
 import tcc.samuelhenrique.app.ui.theme.Texto
 
-var temperature = 100.1F
-var axis = intArrayOf(-996, 15000, 10046)
-var no_errors = false
+var temperature by mutableFloatStateOf(0.0f)
+    private set
+var temperature_fault by mutableStateOf(false)
+    private set
+var temperature_fault_code by mutableStateOf("")
+    private set
+var PROP_INFO_TEMPERATURE: Int = 559943680
+var PROP_FAULT_CODE_TEMPERATURE: Int = 554700801
+
+var acceleration by mutableStateOf(intArrayOf(0, 0, 0))
+    private set
+var acc_fault by mutableStateOf(false)
+    private set
+var acc_fault_code by mutableStateOf("")
+    private set
+var PROP_INFO_ACCELEROMETER: Int = 557912066
+var PROP_FAULT_CODE_ACCELEROMETER: Int = 554700803
+
+var no_errors by mutableStateOf(!acc_fault && !temperature_fault)
+    private set
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var mCar: Car
+    private lateinit var mCarPropertyManager: CarPropertyManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        mCar = Car.createCar(this)
+        mCarPropertyManager = mCar.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
+
+        mCarPropertyManager.registerCallback(
+            EngineTemperature(),
+            PROP_INFO_TEMPERATURE,
+            CarPropertyManager.SENSOR_RATE_FASTEST
+        )
+
+        mCarPropertyManager.registerCallback(
+            FaultMessageTemperature(),
+            PROP_FAULT_CODE_TEMPERATURE,
+            CarPropertyManager.SENSOR_RATE_FASTEST
+        )
+
+        mCarPropertyManager.registerCallback(
+            Accelerometer(),
+            PROP_INFO_ACCELEROMETER,
+            CarPropertyManager.SENSOR_RATE_FASTEST
+        )
+
+        mCarPropertyManager.registerCallback(
+            FaultMessageAccelerometer(),
+            PROP_FAULT_CODE_ACCELEROMETER,
+            CarPropertyManager.SENSOR_RATE_FASTEST
+        )
+
         super.onCreate(savedInstanceState)
         setContent {
             App_TCCTheme {
@@ -61,26 +117,33 @@ fun App() {
             .background(Background_App)
             .padding(27.dp)
     ) {
-        Row (
+        Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
-        ){
+        ) {
             Column(
                 modifier = Modifier.wrapContentSize(),
                 //height = 400.dp width = 400.dp
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.carro),
+                    painter = painterResource(
+                        id = when {
+                            temperature_fault && acc_fault -> R.drawable.carro_acc_temp_v2
+                            temperature_fault -> R.drawable.carro_temp_v2
+                            acc_fault -> R.drawable.carro_acc_v2
+                            else -> R.drawable.carro_v2
+                        }
+                    ),
                     contentDescription = "",
                     modifier = Modifier.size(
                         width = 400.dp,
-                        height = 200.dp)
+                        height = 200.dp
+                    )
                 )
-                Column (
+                Column(
                     verticalArrangement = Arrangement.Bottom,
-                    modifier = Modifier.
-                        fillMaxHeight()
+                    modifier = Modifier.fillMaxHeight()
                 ) {
                     CardTemperature(temperature)
                 }
@@ -102,7 +165,7 @@ fun App() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 20.dp),
-                    horizontalAlignment = if (no_errors) Alignment.CenterHorizontally else Alignment.Start
+                    horizontalAlignment = if (!acc_fault && !temperature_fault) Alignment.CenterHorizontally else Alignment.Start
                 ) {
                     Text(
                         text = "Estado do veículo",
@@ -127,12 +190,25 @@ fun App() {
                             Font(R.font.poppins_regular)
                         )
                     )
-                    if (!no_errors) {
-                        CardTemperatureError(temperature)
+//                    if (!no_errors) {
+//                        CardTemperatureError(temperature)
+//                        Spacer(modifier = Modifier.padding(6.dp))
+//                        CardAccelerometerError(acceleration)
+//                    } else {
+//                        NoErrors()
+//                    }
+                    if (temperature_fault && acc_fault) {
+                        CardTemperatureError(temperature = temperature, temperatureFaultCode = temperature_fault_code)
                         Spacer(modifier = Modifier.padding(6.dp))
-                        CardAccelerometerError(axis)
+                        CardAccelerometerError(axis = acceleration, accFaultCode = acc_fault_code)
                     } else {
-                        NoErrors()
+                        if (temperature_fault) {
+                            CardTemperatureError(temperature = temperature, temperatureFaultCode = temperature_fault_code)
+                        } else if (acc_fault) {
+                            CardAccelerometerError(axis = acceleration, accFaultCode = acc_fault_code)
+                        } else {
+                            NoErrors()
+                        }
                     }
 
                 }
@@ -141,7 +217,65 @@ fun App() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 1024, heightDp = 450)
+class EngineTemperature : CarPropertyManager.CarPropertyEventCallback {
+
+    override fun onChangeEvent(prop: CarPropertyValue<*>) {
+        val newTemperature = prop.value as? Float ?: return
+        temperature = newTemperature
+        temperature_fault = temperature <= -273
+//        Log.i("Temperature", "$temperature ºC")
+    }
+
+    override fun onErrorEvent(p0: Int, p1: Int) {
+//        TODO("Not yet implemented")
+        temperature_fault = true
+    }
+}
+
+class FaultMessageTemperature : CarPropertyManager.CarPropertyEventCallback {
+    override fun onChangeEvent(prop: CarPropertyValue<*>) {
+        val newTemperatureFaultCode = prop.value as? String ?: return
+        temperature_fault_code = newTemperatureFaultCode
+//        Log.i("Temperature Fault", temperature_fault_code)
+
+    }
+    override fun onErrorEvent(p0: Int, p1: Int) {
+        TODO("Not yet implemented")
+    }
+}
+
+class Accelerometer : CarPropertyManager.CarPropertyEventCallback {
+    override fun onChangeEvent(prop: CarPropertyValue<*>) {
+        val integerArray = prop.value as? Array<Int>
+        if (integerArray != null) {
+            acceleration = integerArray.toIntArray()
+            acc_fault = acceleration[0] == -1 && acceleration[1] == -1 && acceleration[2] == -1
+            processAcceleration(acceleration).toString()
+        } else {
+            Log.e("Acceleration", "Valor recebido não é um Array<Int>!")
+        }
+    }
+
+    override fun onErrorEvent(p0: Int, p1: Int) {
+        acc_fault = true
+    }
+}
+
+class FaultMessageAccelerometer : CarPropertyManager.CarPropertyEventCallback {
+    override fun onChangeEvent(prop: CarPropertyValue<*>) {
+        val newAccFaultCode = prop.value as? String ?: return
+        acc_fault_code = newAccFaultCode
+//        Log.i("Acceleration Fault", acc_fault_code)
+    }
+    override fun onErrorEvent(p0: Int, p1: Int) {
+        TODO("Not yet implemented")
+    }
+}
+
+
+@Preview(showBackground = true, widthDp = 1024, heightDp = 450,
+    device = "id:automotive_1024p_landscape"
+)
 @Composable
 fun Preview() {
     App_TCCTheme {
