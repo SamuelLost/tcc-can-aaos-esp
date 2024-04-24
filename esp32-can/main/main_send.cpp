@@ -41,10 +41,10 @@ MCP2515::Device node(configModule);
 extern "C" void app_main(void) {
   // node.setBitrate(CanSpeed::k125KBPS);
   // node.setLoopbackMode();
-  acc_queue = xQueueCreate(5, sizeof(MPU6050::AxisAccel));
-  temperature_queue = xQueueCreate(5, sizeof(float));
+  acc_queue = xQueueCreate(1, sizeof(MPU6050::AxisAccel));
+  temperature_queue = xQueueCreate(1, sizeof(float));
   
-  // xTaskCreate(vTaskAccel, "TaskAccel", 2048, nullptr, 1, nullptr);
+  xTaskCreate(vTaskAccel, "TaskAccel", 2048, nullptr, 1, nullptr);
   xTaskCreate(vTaskCanSend, "TaskCanSend", 2048, nullptr, 1, nullptr);
   // xTaskCreate(vTaskCanReceive, "TaskCanReceive", 2048, nullptr, 1, nullptr);
   xTaskCreate(vTaskTemperature, "TaskTemperature", 2048, nullptr, 1, nullptr);
@@ -56,31 +56,31 @@ void vTaskAccel(void* pvParameters) {
     MPU6050::AxisAccel const& axis = device.getAcceleration();
     xQueueSend(acc_queue, &axis, portMAX_DELAY);
     // std::cout << "X = " << axis.x << " | Y = " << axis.y << " | Z = " << axis.z << std::endl;
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }
 
 void vTaskCanSend(void* pvParameters) {
-  CanMessage canMsg;
+  CanMessage can_msg;
   MPU6050::AxisAccel acc;
   float temp;
   while (1) {
-    /*if (xQueueReceive(acc_queue, &acc, portMAX_DELAY) == pdTRUE) {
-      canMsg.identifier = 0x123;
-      canMsg.data_length_code = 6;
-      canMsg.data[0] = acc.x >> 8;
-      canMsg.data[1] = acc.x;
-      canMsg.data[2] = acc.y >> 8;
-      canMsg.data[3] = acc.y;
-      canMsg.data[4] = acc.z >> 8;
-      canMsg.data[5] = acc.z;
-      std::cout << "--------SEND ACCELERATION DATA--------" << std::endl;
-      std::cout << "ID_SEND = 0x" << std::hex << canMsg.identifier;
-      std::cout << " | DLC_SEND = " << std::dec << static_cast<int>(canMsg.data_length_code);
-      std::cout << " | X_SEND = " << acc.x;
-      std::cout << " | Y_SEND = " << acc.y;
-      std::cout << " | Z_SEND = " << acc.z << std::endl;
-      MCP2515::Error err = node.sendMessage(canMsg);
+    if (xQueueReceive(acc_queue, &acc, portMAX_DELAY) == pdTRUE) {
+      can_msg.identifier = 0x123;
+      can_msg.data_length_code = 6;
+      can_msg.data[0] = acc.x >> 8;
+      can_msg.data[1] = acc.x;
+      can_msg.data[2] = acc.y >> 8;
+      can_msg.data[3] = acc.y;
+      can_msg.data[4] = acc.z >> 8;
+      can_msg.data[5] = acc.z;
+      // std::cout << "--------SEND ACCELERATION DATA--------" << std::endl;
+      // std::cout << "ID_SEND = 0x" << std::hex << can_msg.identifier;
+      // std::cout << " | DLC_SEND = " << std::dec << static_cast<int>(can_msg.data_length_code);
+      // std::cout << " | X_SEND = " << acc.x;
+      // std::cout << " | Y_SEND = " << acc.y;
+      // std::cout << " | Z_SEND = " << acc.z << std::endl;
+      MCP2515::Error err = node.sendMessage(can_msg);
       // if (err == MCP2515::Error::OK) {
       //   std::cout << "--------SEND OK--------" << std::endl;
 
@@ -89,25 +89,25 @@ void vTaskCanSend(void* pvParameters) {
       //   std::cout << "ERROR = " << static_cast<int>(err) << std::endl;
       // }
       // std::cout << "--------SEND END--------" << std::endl;
-    }*/
+    }
 
     if (xQueueReceive(temperature_queue, &temp, portMAX_DELAY) == pdTRUE) {
-      canMsg.identifier = 0x124;
-      canMsg.data_length_code = 4;
-      floatToBytes(temp, canMsg.data);
-      for (int i = 0; i < 4; i++) {
-        std::cout << std::hex << "[" << (int) canMsg.data[i] << "]";
-      }
-      std::cout << std::endl;
+      can_msg.identifier = 0x124;
+      can_msg.data_length_code = 4;
+      floatToBytes(temp, can_msg.data);
+      // for (int i = 0; i < 4; i++) {
+      //   std::cout << std::hex << "[" << (int) can_msg.data[i] << "]";
+      // }
+      // std::cout << std::endl;
       // std::cout << "--------SEND TEMPERATURE DATA--------" << std::endl;
-      // std::cout << "ID_SEND = 0x" << std::hex << canMsg.identifier;
-      // std::cout << " | DLC_SEND = " << std::dec << static_cast<int>(canMsg.data_length_code);
+      // std::cout << "ID_SEND = 0x" << std::hex << can_msg.identifier;
+      // std::cout << " | DLC_SEND = " << std::dec << static_cast<int>(can_msg.data_length_code);
       // std::cout << " | TEMP_SEND = " << temp << " ºC" << std::endl;
-      node.sendMessage(canMsg);
+      node.sendMessage(can_msg);
       // std::cout << "--------SEND END--------" << std::endl;
 
     }
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }
 
@@ -143,13 +143,12 @@ void vTaskCanReceive(void* pvParameters) {
 }
 
 void vTaskTemperature(void *pvParameters) {
-  // DHT dht;
+  DHT dht;
   // dht.setDHTgpio(GPIO_NUM_4);
   while (1) {
-    // dht.errorHandler(dht.readDHT());
-    // float temp = dht.getTemperature();
-    float temp = 33.25;
+    dht.errorHandler(dht.readDHT());
+    float temp = dht.getTemperature();
     xQueueSend(temperature_queue, &temp, portMAX_DELAY);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }
