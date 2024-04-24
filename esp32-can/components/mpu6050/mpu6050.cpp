@@ -103,7 +103,7 @@ void MPU6050::Device::readAcceleration() {
   if (!isConnected()) {
     ESP_LOGE("MPU6050", "Device not connected");
     is_initialized_ = false;
-    acceleration_ = {0, 0, 0};
+    acceleration_ = {-1, -1, -1};
     return;
   }
 
@@ -111,7 +111,7 @@ void MPU6050::Device::readAcceleration() {
     if (!init()) {
       ESP_LOGE("MPU6050", "Failed to initialize device");
       is_initialized_ = false;
-      acceleration_ = {0, 0, 0};
+      acceleration_ = {-1, -1, -1};
       return;
     }
     ESP_LOGI("MPU6050", "Device initialized");
