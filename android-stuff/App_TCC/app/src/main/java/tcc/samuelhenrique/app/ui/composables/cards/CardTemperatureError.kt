@@ -1,6 +1,10 @@
-package tcc.samuelhenrique.app
+package tcc.samuelhenrique.app.ui.composables.cards
 
 import androidx.compose.runtime.Composable
+import tcc.samuelhenrique.app.ui.composables.CurrentReading
+import tcc.samuelhenrique.app.ui.composables.Description
+import tcc.samuelhenrique.app.ui.composables.ExpandableCard
+import tcc.samuelhenrique.app.ui.composables.Gravity
 import java.util.Locale
 
 @Composable

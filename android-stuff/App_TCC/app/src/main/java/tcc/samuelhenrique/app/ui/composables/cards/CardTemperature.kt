@@ -1,4 +1,4 @@
-package tcc.samuelhenrique.app
+package tcc.samuelhenrique.app.ui.composables.cards
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import tcc.samuelhenrique.app.R
 import tcc.samuelhenrique.app.ui.theme.Azul_Temperatura
 import tcc.samuelhenrique.app.ui.theme.Background_Card
 import tcc.samuelhenrique.app.ui.theme.Erro_Vermelho

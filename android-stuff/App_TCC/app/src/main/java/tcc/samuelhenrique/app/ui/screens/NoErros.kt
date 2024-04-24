@@ -1,4 +1,4 @@
-package tcc.samuelhenrique.app
+package tcc.samuelhenrique.app.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import tcc.samuelhenrique.app.R
 import tcc.samuelhenrique.app.ui.theme.Subtitulos
 
 @Composable
