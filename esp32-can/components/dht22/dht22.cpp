@@ -51,10 +51,12 @@ void DHT::errorHandler(int response) {
 
     case DHT_TIMEOUT_ERROR:
         ESP_LOGE(TAG, "Sensor Timeout\n");
+        temperature = -273.15;
         break;
 
     case DHT_CHECKSUM_ERROR:
         ESP_LOGE(TAG, "CheckSum error\n");
+        temperature = -273.15;
         break;
 
     case DHT_OK:
@@ -62,6 +64,7 @@ void DHT::errorHandler(int response) {
 
     default:
         ESP_LOGE(TAG, "Unknown error\n");
+        temperature = -273.15;
     }
 }
 
