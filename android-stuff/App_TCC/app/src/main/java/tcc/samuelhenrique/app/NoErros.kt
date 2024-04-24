@@ -34,7 +34,7 @@ fun NoErrors() {
                 .size(64.dp)
         )
 
-        Text(text = "Está tudo certo com seu veículo",
+        Text(text = "Está tudo bem com seu veículo",
             color = Subtitulos,
             fontSize = 18.sp,
             fontFamily = FontFamily(
