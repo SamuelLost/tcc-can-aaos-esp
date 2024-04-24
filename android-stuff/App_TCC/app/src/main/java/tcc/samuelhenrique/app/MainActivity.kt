@@ -40,6 +40,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import tcc.samuelhenrique.app.ui.composables.cards.CardAccelerometerError
+import tcc.samuelhenrique.app.ui.composables.cards.CardTemperature
+import tcc.samuelhenrique.app.ui.composables.cards.CardTemperatureError
+import tcc.samuelhenrique.app.ui.composables.cards.processAcceleration
+import tcc.samuelhenrique.app.ui.screens.NoErrors
 import tcc.samuelhenrique.app.ui.theme.App_TCCTheme
 import tcc.samuelhenrique.app.ui.theme.Background_App
 import tcc.samuelhenrique.app.ui.theme.Background_Card
