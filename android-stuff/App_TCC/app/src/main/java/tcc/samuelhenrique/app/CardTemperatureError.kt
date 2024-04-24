@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import java.util.Locale
 
 @Composable
-fun CardTemperatureError(temperature: Float) {
+fun CardTemperatureError(temperature: Float, temperatureFaultCode: String) {
     ExpandableCard(
-        titleCard = "TEMP-01",
+        titleCard = temperatureFaultCode,
         description = { Description("Erro na leitura do sensor de temperatura") },
         gravity = { Gravity("Média") },
         currentReading = {
