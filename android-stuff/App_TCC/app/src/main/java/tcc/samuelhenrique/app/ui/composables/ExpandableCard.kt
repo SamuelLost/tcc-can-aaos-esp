@@ -72,7 +72,7 @@ fun ExpandableCard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { expanded = !expanded } // Remove o efeito de click do card
-            .width(450.dp)
+            .width(440.dp)
             .heightIn(min = 48.dp, max = cadHeight)
 
     ) {
