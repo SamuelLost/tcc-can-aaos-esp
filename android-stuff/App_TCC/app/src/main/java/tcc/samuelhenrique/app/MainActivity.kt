@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -34,22 +32,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tcc.samuelhenrique.app.ui.composables.cards.CardAccelerometerError
+import tcc.samuelhenrique.app.ui.composables.cards.CardAngle
 import tcc.samuelhenrique.app.ui.composables.cards.CardTemperature
 import tcc.samuelhenrique.app.ui.composables.cards.CardTemperatureError
 import tcc.samuelhenrique.app.ui.composables.cards.processAcceleration
 import tcc.samuelhenrique.app.ui.screens.NoErrors
+import tcc.samuelhenrique.app.ui.screens.VehicleImageSvgFromAssets
 import tcc.samuelhenrique.app.ui.theme.App_TCCTheme
 import tcc.samuelhenrique.app.ui.theme.Background_App
 import tcc.samuelhenrique.app.ui.theme.Background_Card
 import tcc.samuelhenrique.app.ui.theme.Subtitulos
 import tcc.samuelhenrique.app.ui.theme.Texto
+import tcc.samuelhenrique.app.utils.ImageLoaderUtility
+import tcc.samuelhenrique.app.utils.ImagesPaths
 
 var temperature by mutableFloatStateOf(0.0f)
     private set
@@ -78,6 +79,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var mCarPropertyManager: CarPropertyManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ImageLoaderUtility.initImageLoader(applicationContext)
+        ImageLoaderUtility.preloadImages(applicationContext, ImagesPaths.listOfImages)
+        
         mCar = Car.createCar(this)
         mCarPropertyManager = mCar.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
 
@@ -131,29 +135,31 @@ fun App() {
                 //height = 400.dp width = 400.dp
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(
-                        id = when {
-                            temperature_fault && acc_fault -> R.drawable.carro_acc_temp_v2
-                            temperature_fault -> R.drawable.carro_temp_v2
-                            acc_fault -> R.drawable.carro_acc_v2
-                            else -> R.drawable.carro_v2
-                        }
-                    ),
-                    contentDescription = "",
-                    modifier = Modifier.size(
-                        width = 400.dp,
-                        height = 200.dp
-                    )
+//                VehicleImage(
+//                    tempFault = temperature_fault,
+//                    accFault = acc_fault,
+//                    heightImg = 200.dp,
+//                    widthImg = 400.dp
+//                )
+                VehicleImageSvgFromAssets(
+                    tempFault = temperature_fault,
+                    accFault = acc_fault,
+                    heightImg = 200.dp,
+                    widthImg = 400.dp
                 )
+
                 Column(
                     verticalArrangement = Arrangement.Bottom,
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    CardTemperature(temperature)
+                    Row {
+                        CardTemperature(temperature)
+                        Spacer(modifier = Modifier.padding(6.dp))
+                        CardAngle(acc = acceleration)
+                    }
                 }
             }
-            Spacer(modifier = Modifier.padding(10.dp))
+            Spacer(modifier = Modifier.padding(6.dp))
             Card(
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -195,22 +201,24 @@ fun App() {
                             Font(R.font.poppins_regular)
                         )
                     )
-//                    if (!no_errors) {
-//                        CardTemperatureError(temperature)
-//                        Spacer(modifier = Modifier.padding(6.dp))
-//                        CardAccelerometerError(acceleration)
-//                    } else {
-//                        NoErrors()
-//                    }
                     if (temperature_fault && acc_fault) {
-                        CardTemperatureError(temperature = temperature, temperatureFaultCode = temperature_fault_code)
+                        CardTemperatureError(
+                            temperature = temperature,
+                            temperatureFaultCode = temperature_fault_code
+                        )
                         Spacer(modifier = Modifier.padding(6.dp))
                         CardAccelerometerError(axis = acceleration, accFaultCode = acc_fault_code)
                     } else {
                         if (temperature_fault) {
-                            CardTemperatureError(temperature = temperature, temperatureFaultCode = temperature_fault_code)
+                            CardTemperatureError(
+                                temperature = temperature,
+                                temperatureFaultCode = temperature_fault_code
+                            )
                         } else if (acc_fault) {
-                            CardAccelerometerError(axis = acceleration, accFaultCode = acc_fault_code)
+                            CardAccelerometerError(
+                                axis = acceleration,
+                                accFaultCode = acc_fault_code
+                            )
                         } else {
                             NoErrors()
                         }
@@ -228,11 +236,9 @@ class EngineTemperature : CarPropertyManager.CarPropertyEventCallback {
         val newTemperature = prop.value as? Float ?: return
         temperature = newTemperature
         temperature_fault = temperature <= -273
-//        Log.i("Temperature", "$temperature ºC")
     }
 
     override fun onErrorEvent(p0: Int, p1: Int) {
-//        TODO("Not yet implemented")
         temperature_fault = true
     }
 }
@@ -241,9 +247,8 @@ class FaultMessageTemperature : CarPropertyManager.CarPropertyEventCallback {
     override fun onChangeEvent(prop: CarPropertyValue<*>) {
         val newTemperatureFaultCode = prop.value as? String ?: return
         temperature_fault_code = newTemperatureFaultCode
-//        Log.i("Temperature Fault", temperature_fault_code)
-
     }
+
     override fun onErrorEvent(p0: Int, p1: Int) {
         TODO("Not yet implemented")
     }
@@ -270,15 +275,15 @@ class FaultMessageAccelerometer : CarPropertyManager.CarPropertyEventCallback {
     override fun onChangeEvent(prop: CarPropertyValue<*>) {
         val newAccFaultCode = prop.value as? String ?: return
         acc_fault_code = newAccFaultCode
-//        Log.i("Acceleration Fault", acc_fault_code)
     }
+
     override fun onErrorEvent(p0: Int, p1: Int) {
         TODO("Not yet implemented")
     }
 }
 
-
-@Preview(showBackground = true, widthDp = 1024, heightDp = 450,
+@Preview(
+    showBackground = true, widthDp = 1024, heightDp = 500,
     device = "id:automotive_1024p_landscape"
 )
 @Composable
