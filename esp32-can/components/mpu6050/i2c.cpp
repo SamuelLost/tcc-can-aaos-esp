@@ -34,7 +34,7 @@ uint8_t I2C::Bus::readRegister(uint8_t dev_addr, uint8_t reg_addr) {
   uint8_t rx_data;
 
   i2c_master_write_read_device(port_, dev_addr, &reg_addr, 1, &rx_data, 1,
-                               1000 / portTICK_PERIOD_MS);
+                               pdMS_TO_TICKS(2));
 
   return rx_data;
 }
@@ -44,7 +44,7 @@ esp_err_t I2C::Bus::writeRegister(uint8_t dev_addr, uint8_t reg_addr,
   uint8_t data[2] = {reg_addr, tx_data};
 
   return i2c_master_write_to_device(port_, dev_addr, data, 2,
-                                    1000 / portTICK_PERIOD_MS);
+                                    pdMS_TO_TICKS(2));
 }
 
 esp_err_t I2C::Bus::readRegisterMultipleBytes(uint8_t dev_addr,
@@ -52,7 +52,7 @@ esp_err_t I2C::Bus::readRegisterMultipleBytes(uint8_t dev_addr,
                                               uint8_t* rx_data,
                                               uint32_t length) {
   return i2c_master_write_read_device(port_, dev_addr, &reg_addr, 1, rx_data,
-                                      length, 1000 / portTICK_PERIOD_MS);
+                                      length, pdMS_TO_TICKS(2));
 }
 
 esp_err_t I2C::Bus::readWord(uint8_t dev_addr, uint8_t reg_addr,
@@ -60,7 +60,7 @@ esp_err_t I2C::Bus::readWord(uint8_t dev_addr, uint8_t reg_addr,
   uint8_t data[2];
 
   esp_err_t err = i2c_master_write_read_device(
-      port_, dev_addr, &reg_addr, 1, data, 2, 1000 / portTICK_PERIOD_MS);
+      port_, dev_addr, &reg_addr, 1, data, 2, pdMS_TO_TICKS(2));
 
   *rx_data = (data[0] << 8) | data[1];
 
