@@ -1,0 +1,68 @@
+diff --git a/car-lib/src/android/car/VehiclePropertyIds.java b/car-lib/src/android/car/VehiclePropertyIds.java
+index fb7da53a38..2449ec661f 100644
+--- a/car-lib/src/android/car/VehiclePropertyIds.java
++++ b/car-lib/src/android/car/VehiclePropertyIds.java
+@@ -57,6 +57,50 @@ public final class VehiclePropertyIds {
+     @RequiresPermission(Car.PERMISSION_IDENTIFICATION)
+     @AddedInOrBefore(majorVersion = 33)
+     public static final int INFO_VIN = 286261504;
++    /**
++     * Temperature info property
++     *
++     * <p>
++     * Requires permission: {@link Car#PERMISSION_VENDOR_EXTENSION}.
++     * PERMISSION_VENDOR_EXTENSION is already defined in Car.java for vendor
++     * </p>
++     */
++    @RequiresPermission(Car.PERMISSION_VENDOR_EXTENSION)
++    @AddedInOrBefore(majorVersion = 33)
++    public static final int INFO_TEMPERATURE_DHT22 = 559943680;
++    /**
++     * Temperature fault code property
++     *
++     * <p>
++     * Requires permission: {@link Car#PERMISSION_VENDOR_EXTENSION}.
++     * PERMISSION_VENDOR_EXTENSION is already defined in Car.java for vendor
++     * </p>
++     */
++    @RequiresPermission(Car.PERMISSION_VENDOR_EXTENSION)
++    @AddedInOrBefore(majorVersion = 33)
++    public static final int FAULT_CODE_TEMPERATURE_DHT22 = 554700801;
++    /**
++     * Accelerometer info property
++     *
++     * <p>
++     * Requires permission: {@link Car#PERMISSION_VENDOR_EXTENSION}.
++     * PERMISSION_VENDOR_EXTENSION is already defined in Car.java for vendor
++     * </p>
++     */
++    @RequiresPermission(Car.PERMISSION_VENDOR_EXTENSION)
++    @AddedInOrBefore(majorVersion = 33)
++    public static final int INFO_ACCELEROMETER_MPU6050 = 557912066;
++    /**
++     * Accelerometer fault code property
++     *
++     * <p>
++     * Requires permission: {@link Car#PERMISSION_VENDOR_EXTENSION}.
++     * PERMISSION_VENDOR_EXTENSION is already defined in Car.java for vendor
++     * </p>
++     */
++    @RequiresPermission(Car.PERMISSION_VENDOR_EXTENSION)
++    @AddedInOrBefore(majorVersion = 33)
++    public static final int FAULT_CODE_ACCELEROMETER_MPU6050 = 554700803;
+     /**
+      * Manufacturer of vehicle.
+      *
+diff --git a/service/AndroidManifest.xml b/service/AndroidManifest.xml
+index f763860ab1..d7bab50e6c 100644
+--- a/service/AndroidManifest.xml
++++ b/service/AndroidManifest.xml
+@@ -204,7 +204,7 @@
+          <p>Protection level: signature|privileged
+     -->
+     <permission android:name="android.car.permission.CAR_VENDOR_EXTENSION"
+-         android:protectionLevel="signature|privileged"
++         android:protectionLevel="normal"
+          android:label="@string/car_permission_label_vendor_extension"
+          android:description="@string/car_permission_desc_vendor_extension"/>
+ 
