@@ -10,9 +10,9 @@ import java.util.Locale
 @Composable
 fun CardTemperatureError(temperature: Float, temperatureFaultCode: String) {
     ExpandableCard(
-        titleCard = temperatureFaultCode,
-        description = { Description("Erro na leitura do sensor de temperatura") },
-        gravity = { Gravity("Média") },
+        titleCard = if (temperatureFaultCode == "TMP-E1") "Defeito no sensor de temperatura" else "Defeito no sensor de temperatura",
+        description = { Description("Defeito na leitura do sensor de temperatura") },
+        gravity = { Gravity("Alta") },
         currentReading = {
             CurrentReading(
                 "%.1f ºC".format(
