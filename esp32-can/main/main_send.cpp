@@ -54,7 +54,7 @@ void vTaskAccel(void* pvParameters) {
   MPU6050::Device device(config);
   while (1) {
     MPU6050::AxisAccel const& axis = device.getAcceleration();
-    xQueueSend(acc_queue, &axis, portMAX_DELAY);
+    xQueueSend(acc_queue, &axis, 0);
     // std::cout << "X = " << axis.x << " | Y = " << axis.y << " | Z = " << axis.z << std::endl;
     vTaskDelay(50 / portTICK_PERIOD_MS);
   }
@@ -65,7 +65,7 @@ void vTaskCanSend(void* pvParameters) {
   MPU6050::AxisAccel acc;
   float temp;
   while (1) {
-    if (xQueueReceive(acc_queue, &acc, portMAX_DELAY) == pdTRUE) {
+    if (xQueueReceive(acc_queue, &acc, 0) == pdTRUE) {
       can_msg.identifier = 0x123;
       can_msg.data_length_code = 6;
       can_msg.data[0] = acc.x >> 8;
@@ -80,7 +80,7 @@ void vTaskCanSend(void* pvParameters) {
       // std::cout << " | X_SEND = " << acc.x;
       // std::cout << " | Y_SEND = " << acc.y;
       // std::cout << " | Z_SEND = " << acc.z << std::endl;
-      MCP2515::Error err = node.sendMessage(can_msg);
+      node.sendMessage(can_msg);
       // if (err == MCP2515::Error::OK) {
       //   std::cout << "--------SEND OK--------" << std::endl;
 
@@ -91,7 +91,7 @@ void vTaskCanSend(void* pvParameters) {
       // std::cout << "--------SEND END--------" << std::endl;
     }
 
-    if (xQueueReceive(temperature_queue, &temp, portMAX_DELAY) == pdTRUE) {
+    if (xQueueReceive(temperature_queue, &temp, 0) == pdTRUE) {
       can_msg.identifier = 0x124;
       can_msg.data_length_code = 4;
       floatToBytes(temp, can_msg.data);
@@ -148,7 +148,7 @@ void vTaskTemperature(void *pvParameters) {
   while (1) {
     dht.errorHandler(dht.readDHT());
     float temp = dht.getTemperature();
-    xQueueSend(temperature_queue, &temp, portMAX_DELAY);
+    xQueueSend(temperature_queue, &temp, 0);
     vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }
