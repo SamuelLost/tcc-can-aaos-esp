@@ -15,8 +15,8 @@ import kotlin.math.sqrt
 
 @Composable
 fun CardAccelerometerError(axis: IntArray, accFaultCode: String) {
-    ExpandableCard(titleCard = accFaultCode,
-        description = { Description("Erro na leitura do sensor acelerômetro") },
+    ExpandableCard(titleCard = if (accFaultCode == "ACC-E1") "Defeito no sensor aceleração" else "Defeito no sensor aceleração",
+        description = { Description("Defeito na leitura do sensor de aceleração") },
         gravity = { Gravity("Média") },
         // Imprimir o valor do sensor de aceleração como X: 0.0, Y: 0.0, Z: 0.0 usando joinToString
         currentReading = {
