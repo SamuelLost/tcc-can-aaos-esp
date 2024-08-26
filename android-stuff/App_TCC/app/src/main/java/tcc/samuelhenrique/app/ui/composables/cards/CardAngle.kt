@@ -68,7 +68,7 @@ fun CardAngle(acc: IntArray) {
         )
 
         Text(
-            text = "%.0f".format(roll) + " °",
+            text = "%.1f".format(roll) + " °",
             fontSize = 40.sp,
             fontFamily = FontFamily(
                 Font(R.font.poppins_medium)

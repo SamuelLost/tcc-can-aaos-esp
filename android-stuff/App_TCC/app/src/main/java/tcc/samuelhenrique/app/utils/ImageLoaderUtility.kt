@@ -5,6 +5,7 @@ import coil.Coil
 import coil.ImageLoader
 import coil.decode.SvgDecoder
 import coil.disk.DiskCache
+import coil.memory.MemoryCache
 import coil.request.ImageRequest
 import coil.size.Size
 
@@ -19,6 +20,11 @@ object ImageLoaderUtility {
                     .maxSizeBytes(512L * 1024 * 1024) // 512MB
                     .build()
             }
+//            .memoryCache {
+//                MemoryCache.Builder(context)
+//                    .maxSizeBytes(256 * 1024 * 1024) // 256MB
+//                    .build()
+//            }
             .build()
 
         Coil.setImageLoader(imageLoader)

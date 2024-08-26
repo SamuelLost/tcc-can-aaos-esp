@@ -16,7 +16,7 @@ import kotlin.math.sqrt
 @Composable
 fun CardAccelerometerError(axis: IntArray, accFaultCode: String) {
     ExpandableCard(titleCard = if (accFaultCode == "ACC-E1") "Defeito no sensor de aceleração" else "Defeito no sensor de aceleração",
-        description = { Description("Defeito na leitura do sensor de aceleração") },
+        description = { Description("Defeito na leitura do sensor de aceleração. Leve seu veículo em uma oficina para reparos imediatos.") },
         gravity = { Gravity("Média") },
         // Imprimir o valor do sensor de aceleração como X: 0.0, Y: 0.0, Z: 0.0 usando joinToString
         currentReading = {
@@ -60,12 +60,12 @@ fun processAcceleration(acc: IntArray): Double {
     }
 
     var anorm = sqrt(ax.pow(2) + ay.pow(2) + az.pow(2))
-    var axbar = ax / anorm
+//    var axbar = ax / anorm
     var aybar = ay / anorm
     var azbar = az / anorm
 
-    var roll = atan2(aybar, sqrt(azbar.pow(2) + axbar.pow(2))) * 180 / PI
-
+//    var roll = atan2(aybar, sqrt(azbar.pow(2) + axbar.pow(2))) * 180 / PI
+    var roll = atan2(aybar, azbar) * 180 / PI
     Log.i("MainActivity", "Roll: $roll")
 
     return roll

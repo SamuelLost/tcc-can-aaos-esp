@@ -194,7 +194,7 @@ fun App() {
                         text = "Diagnóstico",
                         fontSize = 16.sp,
                         modifier = Modifier
-                            .padding(bottom = 38.dp)
+                            .padding(bottom = 10.dp) // 38.dp no original
                             .align(Alignment.Start),
                         color = Subtitulos,
                         fontFamily = FontFamily(
@@ -259,7 +259,7 @@ class Accelerometer : CarPropertyManager.CarPropertyEventCallback {
         val integerArray = prop.value as? Array<Int>
         if (integerArray != null) {
             acceleration = integerArray.toIntArray()
-            acc_fault = acceleration[0] == -1 && acceleration[1] == -1 && acceleration[2] == -1
+            acc_fault = acceleration[0] == -32768 && acceleration[1] == -32768 && acceleration[2] == -32768
             processAcceleration(acceleration).toString()
         } else {
             Log.e("Acceleration", "Valor recebido não é um Array<Int>!")

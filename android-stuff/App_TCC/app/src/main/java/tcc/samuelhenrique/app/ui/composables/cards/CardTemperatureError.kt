@@ -11,7 +11,7 @@ import java.util.Locale
 fun CardTemperatureError(temperature: Float, temperatureFaultCode: String) {
     ExpandableCard(
         titleCard = if (temperatureFaultCode == "TMP-E1") "Defeito no sensor de temperatura" else "Defeito no sensor de temperatura",
-        description = { Description("Defeito na leitura do sensor de temperatura") },
+        description = { Description("Defeito na leitura do sensor de temperatura. Pare o carro imediatamente e procure a oficina mais próxima!") },
         gravity = { Gravity("Alta") },
         currentReading = {
             CurrentReading(

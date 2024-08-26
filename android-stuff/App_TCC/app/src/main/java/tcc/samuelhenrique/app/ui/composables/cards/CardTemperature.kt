@@ -58,7 +58,7 @@ fun CardTemperature(temperature: Float) {
                 .padding(start = 10.dp)
         )
 
-        Text(text = "%.0f".format(temperature) + " °C",
+        Text(text = "%.1f".format(temperature) + " °C",
             fontSize = 40.sp,
             fontFamily = FontFamily(
                 Font(R.font.poppins_medium)
