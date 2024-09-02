@@ -1,0 +1,28 @@
+cc_binary {
+    name: "can2vhal",
+    srcs: [
+        "can2vhal.cpp",
+        "socket_can.cpp",
+    ],
+    vendor: true,
+    shared_libs: [
+        "libbase",
+        "libbinder",
+	    "libbinder_ndk",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    static_libs: [
+        "android.hardware.automotive.vehicle-V1-ndk",
+	    "libvhalclient",
+    ],
+    defaults: [
+	    "vhalclient_defaults", // <AidlVhalClient.h>
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
