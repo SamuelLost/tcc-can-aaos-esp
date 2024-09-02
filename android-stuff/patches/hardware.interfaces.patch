@@ -81,7 +81,7 @@ index 727b949a3..e86a21ce0 100644
       * List of fuels the vehicle may use
       *
 diff --git a/automotive/vehicle/aidl/impl/default_config/include/DefaultConfig.h b/automotive/vehicle/aidl/impl/default_config/include/DefaultConfig.h
-index f023fd206..a0d2aed9a 100644
+index f023fd206..a6ad8f60b 100644
 --- a/automotive/vehicle/aidl/impl/default_config/include/DefaultConfig.h
 +++ b/automotive/vehicle/aidl/impl/default_config/include/DefaultConfig.h
 @@ -75,6 +75,50 @@ const std::vector<ConfigDeclaration> kVehicleProperties = {
@@ -108,7 +108,7 @@ index f023fd206..a0d2aed9a 100644
 +                        .minSampleRate = 1.0f,
 +                        .maxSampleRate = 10.0f,
 +                 },
-+         .initialValue = {.stringValue = "TEMP-0"}},
++         .initialValue = {.stringValue = "TMP-0"}},
 +
 +        // Accelerometer sensor
 +        {.config =
