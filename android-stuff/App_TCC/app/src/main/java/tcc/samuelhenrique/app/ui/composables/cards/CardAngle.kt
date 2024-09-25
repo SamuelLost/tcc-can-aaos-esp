@@ -26,6 +26,7 @@ import tcc.samuelhenrique.app.ui.theme.Background_Card
 import tcc.samuelhenrique.app.ui.theme.Erro_Vermelho
 import tcc.samuelhenrique.app.ui.theme.Subtitulos
 import tcc.samuelhenrique.app.ui.theme.Texto
+import java.util.Locale
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -68,7 +69,9 @@ fun CardAngle(acc: IntArray) {
         )
 
         Text(
-            text = "%.1f".format(roll) + " °",
+            text = "%.1f °".format(
+                locale = Locale("pt", "BR"),
+                roll),
             fontSize = 40.sp,
             fontFamily = FontFamily(
                 Font(R.font.poppins_medium)

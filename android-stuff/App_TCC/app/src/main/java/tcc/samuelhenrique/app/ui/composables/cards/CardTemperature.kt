@@ -20,6 +20,7 @@ import tcc.samuelhenrique.app.ui.theme.Background_Card
 import tcc.samuelhenrique.app.ui.theme.Erro_Vermelho
 import tcc.samuelhenrique.app.ui.theme.Subtitulos
 import tcc.samuelhenrique.app.ui.theme.Texto
+import java.util.Locale
 
 @Composable
 fun CardTemperature(temperature: Float) {
@@ -58,7 +59,9 @@ fun CardTemperature(temperature: Float) {
                 .padding(start = 10.dp)
         )
 
-        Text(text = "%.1f".format(temperature) + " °C",
+        Text(text = "%.1f °C".format(
+                locale = Locale("pt", "BR"),
+                temperature),
             fontSize = 40.sp,
             fontFamily = FontFamily(
                 Font(R.font.poppins_medium)
